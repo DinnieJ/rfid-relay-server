@@ -1,5 +1,6 @@
 const { randomUUID, randomInt } = require("crypto");
 const { createServer } = require("http");
+const { argv } = require("process");
 const { Server } = require("socket.io");
 
 const httpServer = createServer();
@@ -9,7 +10,7 @@ let scanners = {}
 let devices = {}
 
 let sessionData = {}
-const io = new Server({
+const io = new Server(httpServer, {
     cors: {
         origin: "*",
         methods: ["GET", "POST"]
@@ -18,6 +19,7 @@ const io = new Server({
     pingInterval: 25000,
     pingTimeout: 5000
 });
+console.log("Listening at port", argv[2])
 
 function responseSuccess(socket, msg) {
     socket.emit("response", {"success": true, msg: msg})
@@ -52,7 +54,7 @@ io.on("connection", (socket) => {
         console.log(`Client disconnected: ${socket.id}, Reason: ${reason}`);
     });
 
-    socket.on("device:createSession", (data) => {
+    socket.on("device:createSession", () => {
         console.log("CREATE NEW SESSION")
         if (!devices[socket.id]) {
             responseErr(socket, "Can't create new session from non client device")
@@ -68,6 +70,7 @@ io.on("connection", (socket) => {
         socket.join(roomId)
         console.log(otp)
         responseSuccess(socket, `Create room session successful: `,)
+        socket.emit("clientDevice:receiveOTP", otp)
     })
 
     socket.on("device:joinRoom", (roomId) => {
@@ -97,4 +100,5 @@ io.on("connection", (socket) => {
 
 
 // Start the server
-io.listen(3000)
+httpServer.listen(argv[2], "0.0.0.0")
+// io.listen(httpServer)
