@@ -90,6 +90,7 @@ io.on("connection", (socket) => {
         sessionData[otp].scannerId = socket.id
         socket.join(sessionData[otp].roomId)
         socket.emit("clientScanner:sessionJoined", sessionData[otp].roomId)
+        socket.to(sessionData[otp].deviceId).emit("clientDevice:sessionJoined", sessionData[otp].roomId)
     })
 
     socket.on("scanner:sendTag", (tagData, roomId) => {
