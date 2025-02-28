@@ -101,5 +101,5 @@ io.on("connection", (socket) => {
 
 
 // Start the server
-httpServer.listen(argv[2], "0.0.0.0")
+httpServer.listen(process.env.PORT || 3000, "0.0.0.0")
 // io.listen(httpServer)
